@@ -5,6 +5,7 @@ import { useTranslation } from "@/lib/i18n/useTranslation";
 import { useLanguageStore } from "@/store/language";
 import ListingCard, { Listing } from "@/components/listings/ListingCard";
 import BidModal from "@/components/marketplace/BidModal";
+import BuyModal from "@/components/marketplace/BuyModal";
 
 const KARNATAKA_DISTRICTS = [
   "","Bagalkot","Ballari","Belagavi","Bengaluru Rural","Bengaluru Urban",
@@ -25,6 +26,7 @@ export default function MarketplaceGrid() {
   const [filters, setFilters] = useState({ commodity: "", district: "", grade: "", delivery_terms: "", min_price: "", max_price: "" });
   const [draftFilters, setDraftFilters] = useState({ ...filters });
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
+  const [selectedBuyListing, setSelectedBuyListing] = useState<Listing | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
@@ -177,6 +179,7 @@ export default function MarketplaceGrid() {
                 listing={listing}
                 language={language}
                 onBid={setSelectedListing}
+                onBuy={setSelectedBuyListing}
               />
             ))}
           </div>
@@ -184,6 +187,14 @@ export default function MarketplaceGrid() {
       </div>
 
       <BidModal listing={selectedListing} onClose={() => setSelectedListing(null)} />
+      <BuyModal 
+        listing={selectedBuyListing} 
+        onClose={() => setSelectedBuyListing(null)} 
+        onSuccess={() => {
+          alert("Payment Successful! Your order is now in escrow.");
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }

@@ -15,6 +15,7 @@ export interface Listing {
   expires_at: string;
   farmer_village: string | null;
   farmer_district: string | null;
+  farmer_upi?: string | null;
   fair_price_estimate: number | null;
   msp_at_listing: number | null;
   listing_images?: string[];
@@ -37,9 +38,10 @@ interface ListingCardProps {
   listing: Listing;
   language: "kn" | "en";
   onBid: (listing: Listing) => void;
+  onBuy: (listing: Listing) => void;
 }
 
-export default function ListingCard({ listing, language, onBid }: ListingCardProps) {
+export default function ListingCard({ listing, language, onBid, onBuy }: ListingCardProps) {
   const { t } = useTranslation();
   const name = language === "kn" && listing.commodity_name_kn
     ? listing.commodity_name_kn
@@ -114,15 +116,24 @@ export default function ListingCard({ listing, language, onBid }: ListingCardPro
         </div>
 
         {/* Footer */}
-        <div className="mt-auto pt-3 flex items-center justify-between border-t border-gray-100">
-          <p className="text-xs font-medium text-gray-400 uppercase">{expiresIn}</p>
-          <button
-            id={`bid-btn-${listing.listing_id}`}
-            onClick={() => onBid(listing)}
-            className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-sm font-bold rounded-xl transition-all shadow-sm shadow-emerald-200 group-hover:scale-105"
-          >
-            {t("market_place_bid")}
-          </button>
+        <div className="mt-auto pt-3 flex items-center justify-between border-t border-gray-100 gap-2">
+          <p className="text-xs font-medium text-gray-400 uppercase shrink-0">{expiresIn}</p>
+          <div className="flex gap-2 w-full justify-end">
+            <button
+              id={`bid-btn-${listing.listing_id}`}
+              onClick={() => onBid(listing)}
+              className="px-3 py-2 border border-emerald-500 text-emerald-600 text-xs font-bold rounded-xl hover:bg-emerald-50 transition-all shrink-0"
+            >
+              {t("market_place_bid")}
+            </button>
+            <button
+              id={`buy-btn-${listing.listing_id}`}
+              onClick={() => onBuy(listing)}
+              className="flex-1 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs font-extrabold rounded-xl transition-all shadow-sm shadow-emerald-200 hover:scale-[1.02] active:scale-95"
+            >
+              {language === 'en' ? 'BUY NOW' : 'ಈಗಲೇ ಖರೀದಿಸಿ'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

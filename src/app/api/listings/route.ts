@@ -53,6 +53,11 @@ export async function POST(req: NextRequest) {
 
   const client = await pool.connect();
   try {
+    // Update farmer's UPI ID if provided
+    if (body.upi_id) {
+      await client.query(`UPDATE farmers SET upi_id = $1 WHERE farmer_id = $2`, [body.upi_id, farmer_id]);
+    }
+
     const res = await client.query(
       `INSERT INTO marketplace_listings (
         farmer_id, commodity_name, commodity_name_kn, hsn_code,
@@ -123,7 +128,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const res = await pool.query(
-      `SELECT l.*, f.full_name as farmer_name, f.village as farmer_village
+      `SELECT l.*, f.full_name as farmer_name, f.village as farmer_village, COALESCE(l.location_district, f.district) as farmer_district, f.upi_id as farmer_upi
        FROM marketplace_listings l
        LEFT JOIN farmers f ON l.farmer_id = f.farmer_id
        WHERE ${where}

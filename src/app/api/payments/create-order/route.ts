@@ -1,6 +1,7 @@
 import pool from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { errorResponse } from "@/lib/apiAuth";
+import Razorpay from "razorpay";
 
 export async function POST(req: NextRequest) {
   const { transaction_id } = await req.json();
@@ -9,7 +10,21 @@ export async function POST(req: NextRequest) {
     if (!txRes.rows[0]) return errorResponse("TXN_NOT_FOUND", "Transaction not found", 404);
 
     const total_amount = Number(txRes.rows[0].total_amount);
-    const razorpay_order_id = `order_dev_${Date.now()}`;  // Fake in dev mode
+    
+    // Create Razorpay Order
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID!,
+      key_secret: process.env.RAZORPAY_KEY_SECRET!
+    });
+    
+    const amount_paise = Math.round(total_amount * 100);
+    const order = await razorpay.orders.create({
+      amount: amount_paise,
+      currency: "INR",
+      receipt: `receipt_${transaction_id.substring(0,8)}`,
+    });
+
+    const razorpay_order_id = order.id;
 
     await pool.query(
       `UPDATE transactions SET razorpay_order_id = $1 WHERE transaction_id = $2`,
@@ -18,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       razorpay_order_id,
-      amount_paise: Math.round(total_amount * 100),
+      amount_paise,
       key_id: process.env.RAZORPAY_KEY_ID || "rzp_test_dev"
     });
   } catch (e: any) {

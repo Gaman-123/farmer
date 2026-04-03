@@ -1,11 +1,44 @@
 import { Pool } from 'pg';
+import dns from 'dns';
+
+// DNS Patch: The local DNS configuration fails to resolve the Neon hostname.
+// We globally monkey-patch dns.lookup for neon.tech domains to use Google DNS.
+const originalLookup = dns.lookup;
+const resolver = new dns.Resolver();
+resolver.setServers(['8.8.8.8', '8.8.4.4']);
+
+// @ts-ignore
+dns.lookup = function(hostname: string, options: any, callback: any) {
+  if (typeof options === 'function') {
+    callback = options;
+    options = {};
+  } else if (typeof options === 'number') {
+    options = { family: options };
+  }
+  
+  if (hostname && hostname.includes('neon.tech')) {
+    resolver.resolve4(hostname, (err, addresses) => {
+      if (err || !addresses || addresses.length === 0) {
+        // @ts-ignore
+        return originalLookup(hostname, options, callback);
+      }
+      if (options && options.all) {
+        callback(null, [{ address: addresses[0], family: 4 }]);
+      } else {
+        callback(null, addresses[0], 4);
+      }
+    });
+  } else {
+    // @ts-ignore
+    return originalLookup(hostname, options, callback);
+  }
+} as typeof dns.lookup;
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL
 });
 
 // Helper to ensure our mock interactive users actually exist in the DB
-// so that our foreign key constraints (farmer_id, buyer_id) don't crash.
 export async function ensureMockUsersExist() {
   const client = await pool.connect();
   try {

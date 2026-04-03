@@ -32,6 +32,7 @@ export default function NewListingForm() {
   const [askingPrice, setAskingPrice] = useState("");
   const [grade, setGrade] = useState<typeof GRADES[number]>("ungraded");
   const [deliveryTerms, setDeliveryTerms] = useState<typeof DELIVERY_TERMS[number]>("farm_pickup");
+  const [upiId, setUpiId] = useState("");
 
   const selectedFruit = FRUITS.find(f => f.id === selectedFruitId);
 
@@ -60,7 +61,8 @@ export default function NewListingForm() {
           quantity_kg: parseFloat(quantityKg),
           minimum_price_per_kg: parseFloat(askingPrice),
           grade,
-          delivery_terms: deliveryTerms
+          delivery_terms: deliveryTerms,
+          upi_id: upiId || undefined
         }),
       });
       const res = await resp.json();
@@ -165,6 +167,13 @@ export default function NewListingForm() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* UPI Payments */}
+        <div className="bg-white rounded p-6 shadow-sm border border-gray-200">
+          <h2 className="font-bold text-gray-800 text-lg mb-4 uppercase tracking-tight">{isKan ? "ಯುಪಿಐ ಐಡಿ" : "UPI ID for Direct Transfers (Optional)"}</h2>
+          <input type="text" value={upiId} onChange={e => setUpiId(e.target.value)} placeholder="farmer@bank" className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-gray-800" />
+          <p className="text-xs text-emerald-600 font-medium mt-2">{isKan ? "ಇದು ಖರೀದಿದಾರರಿಗೆ ನೇರವಾಗಿ ಪಾವತಿಸಲು ಅನುವು ಮಾಡಿಕೊಡುತ್ತದೆ." : "Buyers will be able to pay directly to this UPI ID if provided. If blank, buyers cannot use Buy Now."}</p>
         </div>
 
         <button type="submit" disabled={loading || success} className="w-full py-4 bg-gray-800 hover:bg-gray-900 disabled:opacity-50 text-white font-bold uppercase tracking-widest text-sm rounded shadow mt-8">

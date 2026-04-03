@@ -50,7 +50,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {user.role === 'farmer' && (
             <Link href="/dashboard/listings/new" className="bg-gradient-to-br from-emerald-600 to-teal-700 p-6 rounded text-white shadow hover:shadow-lg transition-all group">
               <h3 className="text-xl font-bold mb-2 uppercase tracking-wide">{t("new_listing")}</h3>
@@ -61,6 +61,11 @@ export default function Dashboard() {
           <Link href="/marketplace" className="bg-white p-6 rounded border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-500 transition-all group">
             <h3 className="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">{t("market_title")}</h3>
             <p className="text-gray-500 group-hover:text-gray-700 transition-colors text-sm">Browse active listings and market prices.</p>
+          </Link>
+
+          <Link href="/dashboard/transactions" className="bg-white p-6 rounded border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-500 transition-all group">
+            <h3 className="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Transactions</h3>
+            <p className="text-gray-500 group-hover:text-gray-700 transition-colors text-sm">View your past orders, payments, and receipts.</p>
           </Link>
         </div>
       </div>
