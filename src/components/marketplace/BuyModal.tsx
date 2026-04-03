@@ -293,8 +293,15 @@ export default function BuyModal({ listing, onClose, onSuccess }: BuyModalProps)
           <div className="p-6 space-y-5 bg-gray-50 max-h-[60vh] overflow-y-auto">
             <div className="text-center">
               <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Scan using any UPI App (GPay, PhonePe, etc.)</p>
-              <div className="bg-white p-4 rounded-2xl shadow-inner inline-block relative group">
-                <img src="/images/qr_code.png" alt="Payment QR" className="w-48 h-48 mx-auto object-contain" />
+              <div className="bg-white p-4 rounded-2xl shadow-inner inline-block relative group border-2 border-dashed border-emerald-200">
+                {/* 
+                   USER: ATTACH YOUR QR IMAGE HERE 
+                   Replace the <img> tag below with your own photo path or component.
+                */}
+                <div className="w-48 h-48 mx-auto flex items-center justify-center bg-emerald-50 rounded-xl overflow-hidden">
+                  <img src="/images/qr_code.png" alt="Payment QR" className="max-w-full max-h-full object-contain" />
+                </div>
+                
                 <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl">
                   <span className="bg-gray-900 text-white text-[10px] px-3 py-1 rounded-full">Scan Me</span>
                 </div>
