@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     commodity_name, hsn_code, quantity_kg, price_per_kg,
     fair_price_estimate, msp_at_transaction,
     sale_channel = "marketplace", district, is_inter_state = false,
-    payment_method = "upi"
+    payment_method = "upi", upi_txid = null
   } = body;
 
   if (!buyer_id && sale_channel === "marketplace") {
@@ -54,14 +54,14 @@ export async function POST(req: NextRequest) {
          fair_price_estimate, msp_at_transaction,
          cgst, sgst, igst,
          platform_fee, platform_fee_gst, total_amount,
-         gst_rate, sale_channel, district, is_inter_state, payment_method, payment_status
+         gst_rate, sale_channel, district, is_inter_state, payment_method, upi_txid, payment_status
        ) VALUES (
          $1,$2,$3,$4,$5,$6,
          $7,$8,$9,$10,
          $11,$12,
          $13,$14,$15,
          $16,$17,$18,
-         $19,$20,$21,$22,$23,'pending'
+         $19,$20,$21,$22,$23,$24,'pending'
        ) RETURNING transaction_id`,
       [
         listing_id || null, bid_id || null, farmer_id, buyer_id || null,
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
         fair_price_estimate || null, msp_at_transaction || null,
         cgst, sgst, igst,
         platform_fee, platform_fee_gst, total_amount,
-        gst_rate, sale_channel, district, is_inter_state, payment_method
+        gst_rate, sale_channel, district, is_inter_state, payment_method, upi_txid
       ]
     );
 

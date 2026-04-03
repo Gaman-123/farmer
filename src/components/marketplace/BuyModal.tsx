@@ -21,6 +21,8 @@ export default function BuyModal({ listing, onClose, onSuccess }: BuyModalProps)
   const [step, setStep] = useState("");
   const [error, setError] = useState("");
   const [forcePaidLoading, setForcePaidLoading] = useState(false);
+  const [paymentMode, setPaymentMode] = useState<"checkout" | "qr">("checkout");
+  const [upiTxId, setUpiTxId] = useState("");
 
   useEffect(() => {
     if (listing) {
@@ -155,6 +157,43 @@ export default function BuyModal({ listing, onClose, onSuccess }: BuyModalProps)
     }
   }
 
+  async function handlePayQR(e: React.FormEvent) {
+    e.preventDefault();
+    const qty = parseFloat(quantityKg);
+    if (!quantityKg || qty <= 0) { setError("Quantity must be > 0"); return; }
+    if (!upiTxId) { setError("Please enter the Transaction ID from your app"); return; }
+    
+    setLoading(true);
+    setError("");
+    try {
+      const txnResp = await fetch("/api/transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          listing_id: listing!.listing_id,
+          farmer_id: (listing as any).farmer_id,
+          commodity_name: listing!.commodity_name,
+          quantity_kg: qty,
+          price_per_kg: listing!.minimum_price_per_kg,
+          hsn_code: (listing as any).hsn_code || null,
+          sale_channel: "marketplace",
+          district: listing!.farmer_district || "Karnataka",
+          payment_method: "qr_manual",
+          upi_txid: upiTxId
+        }),
+      });
+      const txn = await txnResp.json();
+      if (!txn.transaction_id) throw new Error(txn.message || "Transaction creation failed");
+      
+      onSuccess();
+      onClose();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function handleForcePaid() {
     const qty = parseFloat(quantityKg);
     if (!quantityKg || qty <= 0) { setError("Quantity must be > 0"); return; }
@@ -223,6 +262,22 @@ export default function BuyModal({ listing, onClose, onSuccess }: BuyModalProps)
           </div>
         </div>
 
+        {/* Payment Mode Toggle */}
+        <div className="flex bg-gray-100 p-1 m-4 rounded-xl">
+          <button 
+            onClick={() => setPaymentMode("checkout")}
+            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${paymentMode === "checkout" ? "bg-white text-emerald-600 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+          >
+            SMART CHECKOUT
+          </button>
+          <button 
+            onClick={() => setPaymentMode("qr")}
+            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${paymentMode === "qr" ? "bg-white text-emerald-600 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+          >
+            SCAN & PAY (OFFLINE)
+          </button>
+        </div>
+
         {!listing.farmer_upi ? (
           <div className="p-8 space-y-6 bg-gray-50 text-center flex flex-col items-center">
             <div className="w-16 h-16 rounded-full bg-red-100 flex justify-center items-center text-red-500 text-2xl mb-2 font-bold">✕</div>
@@ -233,6 +288,54 @@ export default function BuyModal({ listing, onClose, onSuccess }: BuyModalProps)
             <button onClick={onClose} className="w-full py-3.5 border-2 border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-100 uppercase tracking-wider text-xs">
               {t("cancel")}
             </button>
+          </div>
+        ) : paymentMode === "qr" ? (
+          <div className="p-6 space-y-5 bg-gray-50 max-h-[60vh] overflow-y-auto">
+            <div className="text-center">
+              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Scan using any UPI App (GPay, PhonePe, etc.)</p>
+              <div className="bg-white p-4 rounded-2xl shadow-inner inline-block relative group">
+                <img src="/images/qr_code.png" alt="Payment QR" className="w-48 h-48 mx-auto object-contain" />
+                <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl">
+                  <span className="bg-gray-900 text-white text-[10px] px-3 py-1 rounded-full">Scan Me</span>
+                </div>
+              </div>
+              <p className="mt-4 text-emerald-600 font-black text-lg">UPI ID: {listing.farmer_upi}</p>
+            </div>
+
+            <form onSubmit={handlePayQR} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Enter Quantity (kg)</label>
+                <input
+                  type="number"
+                  value={quantityKg}
+                  onChange={e => setQuantityKg(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-gray-800 font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">UPI Transaction ID / Ref No.</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 4123 4567 8901"
+                  value={upiTxId}
+                  onChange={e => setUpiTxId(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-gray-900 font-mono font-bold"
+                  required
+                />
+                <p className="text-[10px] text-gray-400 mt-1 italic">Please paste the 12-digit transaction ID from your payment app.</p>
+              </div>
+
+              {error && <div className="text-red-500 text-xs font-bold text-center bg-red-50 py-2 rounded-lg">{error}</div>}
+
+              <button 
+                type="submit" 
+                disabled={loading}
+                className="w-full py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-lg hover:bg-emerald-700 transition-all disabled:opacity-50"
+              >
+                {loading ? "VERIFYING..." : "SUBMIT PAYMENT"}
+              </button>
+            </form>
           </div>
         ) : (
           <form onSubmit={handleBuy} className="p-6 space-y-5 bg-gray-50">
