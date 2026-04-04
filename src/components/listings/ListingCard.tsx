@@ -2,6 +2,8 @@
 
 import { formatDistanceToNow } from "date-fns";
 import { useTranslation } from "@/lib/i18n/useTranslation";
+import { PRODUCT_DEFAULTS } from "@/lib/productDefaults";
+
 
 export interface Listing {
   listing_id: string;
@@ -67,12 +69,15 @@ export default function ListingCard({ listing, language, onBid, onBuy }: Listing
 
           if (!imgSrc || imgSrc === "" || imgSrc === "null" || imgSrc === "undefined") {
             // Check both standard and translated names
-            if (commLower.includes("banana") || nameLower.includes("banana")) imgSrc = "/images/banana.png";
-            else if (commLower.includes("mango") || nameLower.includes("mango")) imgSrc = "/images/mango.png";
-            else if (commLower.includes("carrot") || nameLower.includes("carrot")) imgSrc = "/images/carrot.png";
+            if (commLower.includes("banana") || nameLower.includes("banana")) imgSrc = PRODUCT_DEFAULTS.banana;
+            else if (commLower.includes("mango") || nameLower.includes("mango")) imgSrc = PRODUCT_DEFAULTS.mango;
+            else if (commLower.includes("carrot") || nameLower.includes("carrot")) imgSrc = PRODUCT_DEFAULTS.carrot;
             else if (commLower.includes("watermelon") || nameLower.includes("watermelon")) imgSrc = "/images/watermelon.png";
             else if (commLower.includes("pomegranate") || nameLower.includes("pomegranate")) imgSrc = "/images/pomegranate.png";
+            else if (commLower.includes("orange") || nameLower.includes("orange")) imgSrc = "https://images.unsplash.com/photo-1547514701-42782101795e?q=80&w=1000&auto=format&fit=crop";
           }
+
+
 
           return imgSrc ? (
             <img 
