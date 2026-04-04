@@ -22,7 +22,6 @@ export default function BuyModal({ listing, onClose, onSuccess }: BuyModalProps)
   const [error, setError] = useState("");
   const [forcePaidLoading, setForcePaidLoading] = useState(false);
   const [paymentMode, setPaymentMode] = useState<"checkout" | "qr">("checkout");
-  const [upiTxId, setUpiTxId] = useState("");
 
   useEffect(() => {
     if (listing) {
@@ -88,7 +87,7 @@ export default function BuyModal({ listing, onClose, onSuccess }: BuyModalProps)
         amount: order.amount_paise,
         currency: "INR",
         name: "E-Krishi Marketplace",
-        description: `Order #${txn.transaction_id.slice(0,8)} - ${qty}kg ${listing!.commodity_name}`,
+        description: `Order #${txn.transaction_id.slice(0, 8)} - ${qty}kg ${listing!.commodity_name}`,
         order_id: order.razorpay_order_id,
         method: {
           upi: true,
@@ -134,7 +133,7 @@ export default function BuyModal({ listing, onClose, onSuccess }: BuyModalProps)
           }
         },
         modal: {
-          ondismiss: function() {
+          ondismiss: function () {
             setLoading(false);
             setStep("");
           }
@@ -161,8 +160,7 @@ export default function BuyModal({ listing, onClose, onSuccess }: BuyModalProps)
     e.preventDefault();
     const qty = parseFloat(quantityKg);
     if (!quantityKg || qty <= 0) { setError("Quantity must be > 0"); return; }
-    if (!upiTxId) { setError("Please enter the Transaction ID from your app"); return; }
-    
+
     setLoading(true);
     setError("");
     try {
@@ -178,13 +176,12 @@ export default function BuyModal({ listing, onClose, onSuccess }: BuyModalProps)
           hsn_code: (listing as any).hsn_code || null,
           sale_channel: "marketplace",
           district: listing!.farmer_district || "Karnataka",
-          payment_method: "qr_manual",
-          upi_txid: upiTxId
+          payment_method: "qr_manual"
         }),
       });
       const txn = await txnResp.json();
       if (!txn.transaction_id) throw new Error(txn.message || "Transaction creation failed");
-      
+
       onSuccess();
       onClose();
     } catch (err: any) {
@@ -264,13 +261,13 @@ export default function BuyModal({ listing, onClose, onSuccess }: BuyModalProps)
 
         {/* Payment Mode Toggle */}
         <div className="flex bg-gray-100 p-1 m-4 rounded-xl">
-          <button 
+          <button
             onClick={() => setPaymentMode("checkout")}
             className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${paymentMode === "checkout" ? "bg-white text-emerald-600 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
           >
             SMART CHECKOUT
           </button>
-          <button 
+          <button
             onClick={() => setPaymentMode("qr")}
             className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${paymentMode === "qr" ? "bg-white text-emerald-600 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
           >
@@ -297,11 +294,12 @@ export default function BuyModal({ listing, onClose, onSuccess }: BuyModalProps)
                 {/* 
                    USER: ATTACH YOUR QR IMAGE HERE 
                    Replace the <img> tag below with your own photo path or component.
-                */}
+                */
+                }
                 <div className="w-48 h-48 mx-auto flex items-center justify-center bg-emerald-50 rounded-xl overflow-hidden">
                   <img src="/images/qr_code.jpeg" alt="Payment QR" className="max-w-full max-h-full object-contain" />
                 </div>
-                
+
                 <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl">
                   <span className="bg-gray-900 text-white text-[10px] px-3 py-1 rounded-full">Scan Me</span>
                 </div>
@@ -321,22 +319,17 @@ export default function BuyModal({ listing, onClose, onSuccess }: BuyModalProps)
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">UPI Transaction ID / Ref No.</label>
-                <input
-                  type="text"
-                  placeholder="e.g. 4123 4567 8901"
-                  value={upiTxId}
-                  onChange={e => setUpiTxId(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-gray-900 font-mono font-bold"
-                  required
-                />
-                <p className="text-[10px] text-gray-400 mt-1 italic">Please paste the 12-digit transaction ID from your payment app.</p>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 font-mono">Status</label>
+                <div className="w-full bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 text-emerald-700 font-bold text-xs flex items-center gap-2">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
+                  Please complete the payment in your app to proceed.
+                </div>
               </div>
 
               {error && <div className="text-red-500 text-xs font-bold text-center bg-red-50 py-2 rounded-lg">{error}</div>}
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={loading}
                 className="w-full py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-lg hover:bg-emerald-700 transition-all disabled:opacity-50"
               >
@@ -391,7 +384,7 @@ export default function BuyModal({ listing, onClose, onSuccess }: BuyModalProps)
                 )}
               </button>
             </div>
-            
+
             <div className="text-center">
               <p className="text-[10px] text-gray-400 uppercase tracking-widest font-medium">Secured by Razorpay • Escrow Enabled</p>
             </div>

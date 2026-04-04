@@ -59,17 +59,29 @@ export default function ListingCard({ listing, language, onBid, onBuy }: Listing
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden group flex flex-col h-full">
       {/* Image Block */}
       <div className="relative w-full h-40 bg-gray-100 overflow-hidden">
-        {listing.listing_images && listing.listing_images.length > 0 ? (
-          <img 
-            src={listing.listing_images[0]} 
-            alt={name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400 font-medium tracking-wide shadow-inner">
-            NO IMAGE AVAILABLE
-          </div>
-        )}
+        {(() => {
+          const lowerName = listing.commodity_name.toLowerCase();
+          const hasImage = listing.listing_images && listing.listing_images.length > 0;
+          let imgSrc = hasImage ? listing.listing_images![0] : null;
+
+          if (!imgSrc) {
+            if (lowerName.includes("banana")) imgSrc = "/images/banana.png";
+            else if (lowerName.includes("mango")) imgSrc = "/images/mango.png";
+            else if (lowerName.includes("carrot")) imgSrc = "/images/carrot.png";
+          }
+
+          return imgSrc ? (
+            <img 
+              src={imgSrc} 
+              alt={name}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400 font-bold text-[10px] tracking-widest uppercase shadow-inner">
+              NO IMAGE AVAILABLE
+            </div>
+          );
+        })()}
         {/* Strip based on grade */}
         <div className={`absolute bottom-0 left-0 h-1.5 w-full ${listing.grade === "A" ? "bg-emerald-400" : listing.grade === "B" ? "bg-blue-400" : listing.grade === "C" ? "bg-amber-400" : "bg-gray-300"}`} />
       </div>
