@@ -60,14 +60,18 @@ export default function ListingCard({ listing, language, onBid, onBuy }: Listing
       {/* Image Block */}
       <div className="relative w-full h-40 bg-gray-100 overflow-hidden">
         {(() => {
-          const lowerName = listing.commodity_name.toLowerCase();
+          const nameLower = name.toLowerCase();
+          const commLower = listing.commodity_name.toLowerCase();
           const hasImage = listing.listing_images && listing.listing_images.length > 0;
           let imgSrc = hasImage ? listing.listing_images![0] : null;
 
-          if (!imgSrc) {
-            if (lowerName.includes("banana")) imgSrc = "/images/banana.png";
-            else if (lowerName.includes("mango")) imgSrc = "/images/mango.png";
-            else if (lowerName.includes("carrot")) imgSrc = "/images/carrot.png";
+          if (!imgSrc || imgSrc === "" || imgSrc === "null" || imgSrc === "undefined") {
+            // Check both standard and translated names
+            if (commLower.includes("banana") || nameLower.includes("banana")) imgSrc = "/images/banana.png";
+            else if (commLower.includes("mango") || nameLower.includes("mango")) imgSrc = "/images/mango.png";
+            else if (commLower.includes("carrot") || nameLower.includes("carrot")) imgSrc = "/images/carrot.png";
+            else if (commLower.includes("watermelon") || nameLower.includes("watermelon")) imgSrc = "/images/watermelon.png";
+            else if (commLower.includes("pomegranate") || nameLower.includes("pomegranate")) imgSrc = "/images/pomegranate.png";
           }
 
           return imgSrc ? (
@@ -75,6 +79,11 @@ export default function ListingCard({ listing, language, onBid, onBuy }: Listing
               src={imgSrc} 
               alt={name}
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              onError={(e) => {
+                // If it fails to load (404), hide it so we show "NO IMAGE"
+                (e.target as any).style.display = 'none';
+                (e.target as any).parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400 font-bold text-[10px] tracking-widest uppercase shadow-inner">NO IMAGE AVAILABLE</div>';
+              }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400 font-bold text-[10px] tracking-widest uppercase shadow-inner">
