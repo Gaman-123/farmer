@@ -299,7 +299,7 @@ export default function BuyModal({ listing, onClose, onSuccess }: BuyModalProps)
                    Replace the <img> tag below with your own photo path or component.
                 */}
                 <div className="w-48 h-48 mx-auto flex items-center justify-center bg-emerald-50 rounded-xl overflow-hidden">
-                  <img src="/images/qr_code.png" alt="Payment QR" className="max-w-full max-h-full object-contain" />
+                  <img src="/images/qr_code.jpeg" alt="Payment QR" className="max-w-full max-h-full object-contain" />
                 </div>
                 
                 <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl">
