@@ -15,7 +15,7 @@ type Step = "phone" | "otp";
 
 export default function PhoneLoginForm() {
   const router = useRouter();
-  const { setFarmer } = useFarmerStore();
+  const { setUser } = useFarmerStore();
   const { toggleLanguage } = useLanguageStore();
   const { t, language } = useTranslation();
 
@@ -89,7 +89,7 @@ export default function PhoneLoginForm() {
 
       if (res.ok) {
         const farmer = await res.json();
-        setFarmer(farmer);
+        setUser(farmer);
         router.push("/dashboard");
       } else if (res.status === 404) {
         router.push("/onboarding/register");

@@ -26,7 +26,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000"
 
 export default function FarmerRegistrationForm() {
   const router = useRouter();
-  const { setFarmer } = useFarmerStore();
+  const { setUser } = useFarmerStore();
   const { toggleLanguage } = useLanguageStore();
   const { t } = useTranslation();
 
@@ -99,7 +99,7 @@ export default function FarmerRegistrationForm() {
       }
 
       const data = await res.json();
-      setFarmer({ farmer_id: data.farmer_id, full_name: fullName, village, district, preferred_language: langPref, latitude: farmLocation!.lat, longitude: farmLocation!.lng });
+      setUser({ id: data.farmer_id || data.id, role: 'farmer', name: fullName, location: `${village}, ${district}` });
       router.push("/dashboard");
     } catch (e: any) {
       setError(e.message ?? t("error"));

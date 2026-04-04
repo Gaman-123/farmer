@@ -30,7 +30,7 @@ export default function TransactionHistoryPage() {
     async function load() {
       setLoading(true);
       try {
-        const queryParam = user.role === "farmer" ? `farmer_id=${user.id}` : `buyer_id=${user.id}`;
+        const queryParam = user!.role === "farmer" ? `farmer_id=${user!.id}` : `buyer_id=${user!.id}`;
         const res = await fetch(`/api/transactions?${queryParam}`);
         const json = await res.json();
         setTransactions(json.data || []);
