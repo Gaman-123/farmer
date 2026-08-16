@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useFarmerStore } from "@/store/farmer";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow, format } from "date-fns";
+import Navbar from "@/components/ui/Navbar";
+import { useLanguageStore } from "@/store/language";
 
 interface Transaction {
   transaction_id: string;
@@ -17,7 +19,10 @@ interface Transaction {
 
 export default function TransactionHistoryPage() {
   const { user } = useFarmerStore();
+  const { language } = useLanguageStore();
+  const isKan = language === "kn";
   const router = useRouter();
+  
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -50,88 +55,155 @@ export default function TransactionHistoryPage() {
   const getStatusBadge = (status: string) => {
     const s = status.toLowerCase();
     if (["released", "paid", "success"].includes(s)) {
-      return <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold uppercase tracking-wider shadow-sm">Success</span>;
+      return (
+        <span className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulseGlow"></span>
+          Success
+        </span>
+      );
     }
     if (["pending", "in_escrow"].includes(s)) {
-      return <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold uppercase tracking-wider shadow-sm">Pending</span>;
+      return (
+        <span className="px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulseGlow"></span>
+          Escrow
+        </span>
+      );
     }
-    return <span className="px-2.5 py-1 rounded-full bg-red-100 text-red-800 text-xs font-bold uppercase tracking-wider shadow-sm">Failed</span>;
+    return (
+      <span className="px-3 py-1.5 rounded-xl bg-red-50 border border-red-100 text-red-700 text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center justify-center gap-1.5">
+        <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+        Failed
+      </span>
+    );
   };
 
+  const totalEarnings = transactions.reduce((sum, txn) => sum + Number(txn.total_amount), 0);
+  const pendingTransactions = transactions.filter(t => ["pending", "in_escrow"].includes(t.payment_status.toLowerCase())).length;
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Topbar */}
-      <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white px-6 py-4 flex items-center justify-between shadow-md border-b border-gray-700">
-        <h1 className="text-xl font-bold tracking-tight uppercase">Transaction History</h1>
-        <button onClick={() => router.push("/dashboard")} className="px-4 py-2 text-sm font-bold rounded bg-white/10 hover:bg-white/20 transition-all uppercase tracking-wider">
-          Back to Dashboard
-        </button>
+    <div className="min-h-screen bg-[#FDFCFB] flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900">
+      <Navbar backHref="/dashboard" backLabel={isKan ? "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಹಿಂತಿರುಗಿ" : "Back to Dashboard"} />
+
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white animate-fadeUp">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500 opacity-5 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
+          
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-black tracking-tight mb-2 font-['Outfit']">
+                {isKan ? "ವ್ಯವಹಾರಗಳ ಇತಿಹಾಸ" : "Transaction History"}
+              </h1>
+              <p className="text-gray-400 text-sm max-w-md leading-relaxed">
+                {isFarmer 
+                  ? (isKan ? "ನಿಮ್ಮ ಇ-ಕೃಷಿ ವ್ಯಾಪಾರಗಳಿಂದ ಸ್ವೀಕರಿಸಲಾದ ಎಲ್ಲಾ ಪಾವತಿಗಳನ್ನು ಇಲ್ಲಿ ವೀಕ್ಷಿಸಿ." : "Track all payments received for your produce securely via Escrow.") 
+                  : (isKan ? "ನಿಮ್ಮ ಎಲ್ಲಾ ಖರೀದಿಗಳನ್ನು ಇಲ್ಲಿ ಪರಿಶೀಲಿಸಿ." : "Monitor all your secure purchases and escrow releases.")}
+              </p>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="flex gap-4">
+              <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 min-w-[140px] shadow-lg animate-scaleIn" style={{ animationDelay: "100ms" }}>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">
+                  {isFarmer ? "Total Earnings" : "Total Spent"}
+                </p>
+                <p className="text-2xl font-black text-emerald-400">
+                  ₹{totalEarnings.toLocaleString("en-IN")}
+                </p>
+              </div>
+              <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 min-w-[140px] shadow-lg animate-scaleIn" style={{ animationDelay: "200ms" }}>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">
+                  In Escrow
+                </p>
+                <p className="text-2xl font-black text-amber-400">
+                  {pendingTransactions} <span className="text-sm">Txns</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="flex-1 max-w-7xl mx-auto w-full p-6 space-y-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-            <h2 className="text-lg font-bold text-gray-800">Your Recent Transactions</h2>
-            <p className="text-gray-500 text-sm mt-1">{isFarmer ? "Payments received for your produce" : "Payments made for your purchases"}</p>
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 pb-24 relative -mt-8 z-10">
+        
+        <div className="bg-white rounded-[2rem] shadow-[0_15px_50px_rgba(0,0,0,0.05)] border border-gray-100 overflow-hidden animate-slideUp" style={{ animationDelay: "300ms" }}>
+          
+          {/* Table Header */}
+          <div className="p-6 sm:px-8 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+            <h2 className="text-lg font-bold text-gray-900 font-['Outfit']">
+              {isKan ? "ಇತ್ತೀಚಿನ ವಹಿವಾಟುಗಳು" : "Recent Transactions"}
+            </h2>
+            <button className="px-4 py-2 bg-white border border-gray-200 text-gray-600 text-xs font-bold rounded-xl hover:bg-gray-50 transition-all shadow-sm uppercase tracking-widest">
+              Export CSV
+            </button>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-gray-600">
-              <thead className="bg-gray-50 text-gray-500 font-bold uppercase tracking-wider text-xs border-b border-gray-200">
+            <table className="w-full text-left text-sm text-gray-700">
+              <thead className="bg-white text-gray-400 font-black uppercase tracking-widest text-[10px] border-b border-gray-100">
                 <tr>
-                  <th className="px-6 py-4">Order ID</th>
-                  <th className="px-6 py-4">Date</th>
-                  <th className="px-6 py-4">{isFarmer ? "Buyer" : "Farmer"}</th>
-                  <th className="px-6 py-4">Crop</th>
-                  <th className="px-6 py-4 font-bold">{isFarmer ? "Amount Received" : "Amount Paid"}</th>
-                  <th className="px-6 py-4 text-center">Status</th>
+                  <th className="px-8 py-5">Order ID</th>
+                  <th className="px-6 py-5">Date</th>
+                  <th className="px-6 py-5">{isFarmer ? "Buyer" : "Farmer"}</th>
+                  <th className="px-6 py-5">Crop</th>
+                  <th className="px-6 py-5 font-black text-gray-500">{isFarmer ? "Received" : "Paid"}</th>
+                  <th className="px-8 py-5 text-center">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-50 bg-white">
                 {loading ? (
-                  Array.from({ length: 3 }).map((_, i) => (
-                    <tr key={i} className="animate-pulse bg-gray-50/50">
-                      <td className="px-6 py-5"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
-                      <td className="px-6 py-5"><div className="h-4 bg-gray-200 rounded w-20"></div></td>
-                      <td className="px-6 py-5"><div className="h-4 bg-gray-200 rounded w-32"></div></td>
-                      <td className="px-6 py-5"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
-                      <td className="px-6 py-5"><div className="h-4 bg-gray-200 rounded w-20"></div></td>
-                      <td className="px-6 py-5"><div className="h-6 bg-gray-200 rounded-full w-20 mx-auto"></div></td>
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <tr key={i}>
+                      <td className="px-8 py-6"><div className="h-4 skeleton rounded-lg w-20"></div></td>
+                      <td className="px-6 py-6"><div className="h-4 skeleton rounded-lg w-24"></div></td>
+                      <td className="px-6 py-6"><div className="h-4 skeleton rounded-lg w-32"></div></td>
+                      <td className="px-6 py-6"><div className="h-4 skeleton rounded-lg w-24"></div></td>
+                      <td className="px-6 py-6"><div className="h-4 skeleton rounded-lg w-24"></div></td>
+                      <td className="px-8 py-6"><div className="h-8 skeleton rounded-xl w-24 mx-auto"></div></td>
                     </tr>
                   ))
                 ) : transactions.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
-                      <div className="flex flex-col items-center justify-center">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                          <span className="text-2xl opacity-50">🧾</span>
+                    <td colSpan={6} className="px-8 py-20 text-center">
+                      <div className="flex flex-col items-center justify-center animate-fadeIn">
+                        <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4 border-4 border-white shadow-sm">
+                          <span className="text-3xl opacity-40">🧾</span>
                         </div>
-                        <p className="font-medium text-gray-600 text-lg">No transactions yet</p>
-                        <p className="text-gray-400 text-sm mt-1">When you make a transaction, it will appear here.</p>
+                        <p className="font-black text-gray-900 text-xl font-['Outfit'] mb-1">No transactions yet</p>
+                        <p className="text-gray-500 text-sm">When you complete an order, it will appear here securely.</p>
                       </div>
                     </td>
                   </tr>
                 ) : (
-                  transactions.map((txn) => (
-                    <tr key={txn.transaction_id} className="hover:bg-gray-50/50 transition-colors group">
-                      <td className="px-6 py-5 font-mono text-xs text-gray-500 uppercase tracking-wider truncate max-w-[120px]" title={txn.transaction_id}>
-                        {txn.transaction_id.split("-")[0]}
+                  transactions.map((txn, index) => (
+                    <tr 
+                      key={txn.transaction_id} 
+                      className="hover:bg-gray-50/80 transition-colors group animate-fadeUp"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      <td className="px-8 py-6">
+                        <span className="font-mono text-xs font-bold text-gray-500 uppercase bg-gray-100 px-2 py-1 rounded">
+                          {txn.transaction_id.split("-")[0]}
+                        </span>
                       </td>
-                      <td className="px-6 py-5" title={format(new Date(txn.created_at), "PPp")}>
+                      <td className="px-6 py-6 text-gray-500 text-xs font-semibold" title={format(new Date(txn.created_at), "PPp")}>
                         {formatDistanceToNow(new Date(txn.created_at), { addSuffix: true })}
                       </td>
-                      <td className="px-6 py-5 font-medium text-gray-800">
-                        {isFarmer ? (txn.buyer_name || "Unknown Buyer") : txn.farmer_name}
+                      <td className="px-6 py-6">
+                        <span className="font-bold text-gray-900 group-hover:text-emerald-700 transition-colors">
+                          {isFarmer ? (txn.buyer_name || "Unknown Buyer") : txn.farmer_name}
+                        </span>
                       </td>
-                      <td className="px-6 py-5">
-                        <span className="inline-flex items-center px-2 py-1 rounded bg-gray-100 text-gray-700 text-xs font-semibold">
+                      <td className="px-6 py-6">
+                        <span className="inline-flex items-center px-3 py-1 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 text-xs font-bold shadow-sm">
                           {txn.commodity_name}
                         </span>
                       </td>
-                      <td className="px-6 py-5 font-bold text-gray-800">
+                      <td className="px-6 py-6 font-black text-gray-900 text-base">
                         ₹{Number(txn.total_amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                       </td>
-                      <td className="px-6 py-5 text-center">
+                      <td className="px-8 py-6 text-center">
                         {getStatusBadge(txn.payment_status)}
                       </td>
                     </tr>
@@ -141,7 +213,7 @@ export default function TransactionHistoryPage() {
             </table>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
