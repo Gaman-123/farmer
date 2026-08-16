@@ -6,6 +6,7 @@ import { useLanguageStore } from "@/store/language";
 import ListingCard, { Listing } from "@/components/listings/ListingCard";
 import BidModal from "@/components/marketplace/BidModal";
 import BuyModal from "@/components/marketplace/BuyModal";
+import Navbar from "@/components/ui/Navbar";
 
 const KARNATAKA_DISTRICTS = [
   "","Bagalkot","Ballari","Belagavi","Bengaluru Rural","Bengaluru Urban",
@@ -77,21 +78,7 @@ export default function MarketplaceGrid() {
 
   return (
     <div className="min-h-screen bg-[#FDFCFB] flex flex-col font-sans selection:bg-emerald-100 selection:text-emerald-900">
-      {/* Dynamic Navigation */}
-      <nav className={`fixed w-full z-50 transition-all duration-300 px-6 py-4 ${isScrolled ? "bg-white/80 backdrop-blur-md shadow-sm" : "bg-transparent"}`}>
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-emerald-200">E</div>
-            <h1 className={`text-xl font-black tracking-tight ${isScrolled ? "text-gray-900" : "text-gray-900"}`}>{t("market_title")}</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <button onClick={toggleLanguage} className="text-sm font-bold uppercase tracking-widest text-emerald-600 hover:bg-emerald-50 px-4 py-2 rounded-full transition-all">
-              {t("language_toggle")}
-            </button>
-            <div className="w-10 h-10 bg-gray-100 rounded-full border-2 border-white shadow-sm flex items-center justify-center text-gray-400 font-bold">B</div>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero Search Section */}
       <div className="pt-24 pb-12 px-6 bg-gradient-to-b from-emerald-50/50 to-transparent">
