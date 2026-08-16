@@ -237,172 +237,200 @@ export default function BuyModal({ listing, onClose, onSuccess }: BuyModalProps)
   const totalAmount = parseFloat(quantityKg) * listing.minimum_price_per_kg;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-6">
-          <div className="flex items-center justify-between mb-2">
+    <div 
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 animate-fadeIn"
+      style={{
+        background: "rgba(15, 23, 42, 0.4)",
+        backdropFilter: "blur(12px) saturate(150%)",
+        WebkitBackdropFilter: "blur(12px) saturate(150%)",
+      }}
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden animate-slideUp transform transition-all relative border border-white/50"
+        onClick={e => e.stopPropagation()}
+        style={{
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255,255,255,0.1) inset"
+        }}
+      >
+        {/* Header Background */}
+        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-br from-teal-600 via-emerald-600 to-teal-800 -z-10">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
+          <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
+        </div>
+
+        {/* Header Content */}
+        <div className="pt-6 px-8 pb-6 text-white relative">
+          <div className="flex items-start justify-between mb-2">
             <div>
-              <h2 className="text-xl font-bold">{isKan ? "ಈಗಲೇ ಖರೀದಿಸಿ" : "Buy Now"}</h2>
-              <p className="text-emerald-100 font-medium">{isKan ? listing.commodity_name_kn : listing.commodity_name}</p>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/20 rounded-lg backdrop-blur-md border border-white/20 mb-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-300 animate-pulseGlow"></span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-teal-50">Market Price: ₹{listing.minimum_price_per_kg}</span>
+              </div>
+              <h2 className="text-2xl font-black tracking-tight font-['Outfit']">
+                {isKan ? "ಈಗಲೇ ಖರೀದಿಸಿ" : "Buy Now"}
+              </h2>
+              <p className="text-teal-100 font-medium text-sm mt-0.5 opacity-90">
+                {isKan ? listing.commodity_name_kn : listing.commodity_name}
+              </p>
             </div>
-            <button onClick={onClose} className="p-2 rounded-full hover:bg-white/20 transition-colors text-xl font-bold">✕</button>
-          </div>
-          <div className="mt-4 flex gap-3">
-            <div className="bg-white/20 rounded-xl px-3 py-2 text-sm flex-1">
-              <p className="text-emerald-100 text-xs">{isKan ? "ಬೆಲೆ" : "Price"}</p>
-              <p className="font-bold text-lg">₹{Number(listing.minimum_price_per_kg).toFixed(2)}/kg</p>
-            </div>
-            <div className="bg-white/20 rounded-xl px-3 py-2 text-sm flex-1">
-              <p className="text-emerald-100 text-xs">{isKan ? "ಲಭ್ಯ" : "Available"}</p>
-              <p className="font-bold text-lg">{Number(listing.quantity_remaining_kg).toLocaleString()} kg</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Payment Mode Toggle */}
-        <div className="flex bg-gray-100 p-1 m-4 rounded-xl">
-          <button
-            onClick={() => setPaymentMode("checkout")}
-            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${paymentMode === "checkout" ? "bg-white text-emerald-600 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
-          >
-            SMART CHECKOUT
-          </button>
-          <button
-            onClick={() => setPaymentMode("qr")}
-            className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${paymentMode === "qr" ? "bg-white text-emerald-600 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
-          >
-            SCAN & PAY (OFFLINE)
-          </button>
-        </div>
-
-        {!listing.farmer_upi ? (
-          <div className="p-8 space-y-6 bg-gray-50 text-center flex flex-col items-center">
-            <div className="w-16 h-16 rounded-full bg-red-100 flex justify-center items-center text-red-500 text-2xl mb-2 font-bold">✕</div>
-            <h3 className="font-bold text-gray-800 text-lg uppercase tracking-wider">{isKan ? "ಖರೀದಿ ಅಲಭ್ಯ" : "Purchase Unavailable"}</h3>
-            <p className="text-gray-500 text-sm">
-              {isKan ? "ರೈತರು ಯುಪಿಐ ಅನ್ನು ಒದಗಿಸಿಲ್ಲ." : "Farmer has not configured an active UPI ID. Online escrow flow disabled."}
-            </p>
-            <button onClick={onClose} className="w-full py-3.5 border-2 border-gray-200 text-gray-600 font-bold rounded-xl hover:bg-gray-100 uppercase tracking-wider text-xs">
-              {t("cancel")}
+            <button 
+              onClick={onClose} 
+              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all backdrop-blur-md"
+            >
+              <span className="text-sm font-bold opacity-80 hover:opacity-100">✕</span>
             </button>
           </div>
-        ) : paymentMode === "qr" ? (
-          <div className="p-6 space-y-5 bg-gray-50 max-h-[60vh] overflow-y-auto">
-            <div className="text-center">
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Scan using any UPI App (GPay, PhonePe, etc.)</p>
-              <div className="bg-white p-4 rounded-2xl shadow-inner inline-block relative group border-2 border-dashed border-emerald-200">
-                {/* 
-                   USER: ATTACH YOUR QR IMAGE HERE 
-                   Replace the <img> tag below with your own photo path or component.
-                */
-                }
-                <div className="w-48 h-48 mx-auto flex items-center justify-center bg-emerald-50 rounded-xl overflow-hidden">
-                  <img src="/images/qr_code.jpeg" alt="Payment QR" className="max-w-full max-h-full object-contain" />
-                </div>
+        </div>
 
-                <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl">
-                  <span className="bg-gray-900 text-white text-[10px] px-3 py-1 rounded-full">Scan Me</span>
-                </div>
-              </div>
-              <p className="mt-4 text-emerald-600 font-black text-lg">UPI ID: {listing.farmer_upi}</p>
-            </div>
-
-            <form onSubmit={handlePayQR} className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Enter Quantity (kg)</label>
-                <input
-                  type="number"
-                  value={quantityKg}
-                  onChange={e => setQuantityKg(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-gray-800 font-bold"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 font-mono">Status</label>
-                <div className="w-full bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 text-emerald-700 font-bold text-xs flex items-center gap-2">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
-                  Please complete the payment in your app to proceed.
-                </div>
-              </div>
-
-              {error && <div className="text-red-500 text-xs font-bold text-center bg-red-50 py-2 rounded-lg">{error}</div>}
-
+        {/* Content Body */}
+        <div className="bg-white rounded-t-3xl -mt-6 relative shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+          {/* Payment Mode Toggle */}
+          <div className="p-4 bg-gray-50/80 border-b border-gray-100 rounded-t-3xl">
+            <div className="flex bg-gray-200/50 p-1 rounded-xl">
               <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-lg hover:bg-emerald-700 transition-all disabled:opacity-50"
+                onClick={() => setPaymentMode("checkout")}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${paymentMode === "checkout" ? "bg-white text-emerald-600 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
               >
-                {loading ? "VERIFYING..." : "SUBMIT PAYMENT"}
+                SMART CHECKOUT
               </button>
-            </form>
-          </div>
-        ) : (
-          <form onSubmit={handleBuy} className="p-6 space-y-5 bg-gray-50">
-            {error && <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 text-sm font-medium">{error}</div>}
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{isKan ? "ಖರೀದಿಸಲು ಪ್ರಮಾಣ (ಕೆಜಿ)" : "Quantity to Buy (kg)"} *</label>
-              <input
-                type="number"
-                step="1"
-                min="1"
-                max={listing.quantity_remaining_kg}
-                value={quantityKg}
-                onChange={e => setQuantityKg(e.target.value)}
-                placeholder={`Max ${listing.quantity_remaining_kg} kg`}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-gray-800 font-bold text-lg"
-                disabled={loading}
-                autoFocus
-              />
+              <button
+                onClick={() => setPaymentMode("qr")}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${paymentMode === "qr" ? "bg-white text-emerald-600 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+              >
+                SCAN & PAY (OFFLINE)
+              </button>
             </div>
+          </div>
 
-            {!isNaN(totalAmount) && totalAmount > 0 && (
-              <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex items-center justify-between shadow-inner">
-                <span className="text-emerald-800 font-medium">{isKan ? "ಒಟ್ಟು ಮೊತ್ತ" : "Total Amount"}</span>
-                <div className="text-right">
-                  <span className="font-extrabold text-emerald-700 text-2xl block">₹{totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-                  <span className="text-[10px] text-emerald-500 uppercase font-bold tracking-tighter italic">+ taxes & platform fees</span>
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-3 pt-2">
-              {!loading && (
-                <button type="button" onClick={onClose} className="flex-1 py-3.5 border-2 border-gray-200 text-gray-600 font-bold rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all uppercase tracking-wider text-xs">
+          <div className="p-8 max-h-[65vh] overflow-y-auto">
+            {!listing.farmer_upi ? (
+              <div className="space-y-6 text-center flex flex-col items-center">
+                <div className="w-16 h-16 rounded-full bg-red-100 flex justify-center items-center text-red-500 text-2xl mb-2 font-bold animate-shake">✕</div>
+                <h3 className="font-black text-gray-900 text-xl font-['Outfit']">{isKan ? "ಖರೀದಿ ಅಲಭ್ಯ" : "Purchase Unavailable"}</h3>
+                <p className="text-gray-500 text-sm">
+                  {isKan ? "ರೈತರು ಯುಪಿಐ ಅನ್ನು ಒದಗಿಸಿಲ್ಲ." : "Farmer has not configured an active UPI ID. Online escrow flow disabled."}
+                </p>
+                <button onClick={onClose} className="w-full py-4 border-2 border-gray-100 text-gray-600 font-bold rounded-2xl hover:bg-gray-50 uppercase tracking-widest text-xs transition-all">
                   {t("cancel")}
                 </button>
-              )}
-              <button type="submit" disabled={loading} className="flex-1 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 disabled:opacity-80 text-white font-extrabold rounded-xl transition-all shadow-md hover:shadow-lg flex flex-col items-center justify-center">
-                {loading ? (
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <span className="text-[10px] font-medium animate-pulse">{step}</span>
+              </div>
+            ) : paymentMode === "qr" ? (
+              <div className="space-y-6">
+                <div className="text-center">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Scan using any UPI App (GPay, PhonePe, etc.)</p>
+                  <div className="bg-white p-4 rounded-3xl shadow-[0_4px_20px_rgb(0,0,0,0.05)] inline-block relative group border-2 border-dashed border-emerald-200 hover:border-emerald-400 transition-colors">
+                    <div className="w-48 h-48 mx-auto flex items-center justify-center bg-emerald-50 rounded-2xl overflow-hidden">
+                      <img src="/images/qr_code.jpeg" alt="Payment QR" className="max-w-full max-h-full object-contain" />
+                    </div>
                   </div>
-                ) : (
-                  <span>{isKan ? "ಪಾವತಿಸಿ" : "PAY NOW"}</span>
+                  <div className="mt-4 flex flex-col items-center gap-1">
+                    <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full">UPI ID</span>
+                    <p className="text-gray-900 font-black text-lg">{listing.farmer_upi}</p>
+                  </div>
+                </div>
+
+                <form onSubmit={handlePayQR} className="space-y-4">
+                  <div>
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 pl-2">Quantity (kg)</label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={quantityKg}
+                        onChange={e => setQuantityKg(e.target.value)}
+                        className="input-premium pl-4 pr-12 text-lg font-bold text-gray-900 h-14"
+                      />
+                      <span className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">KG</span>
+                    </div>
+                  </div>
+
+                  {error && <div className="text-red-500 text-xs font-bold text-center bg-red-50 py-3 rounded-xl border border-red-100 animate-shake">{error}</div>}
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-4 bg-gray-900 text-white font-black rounded-2xl shadow-[0_8px_25px_rgba(0,0,0,0.15)] hover:shadow-[0_12px_30px_rgba(0,0,0,0.2)] hover:bg-black transition-all disabled:opacity-50 flex items-center justify-center gap-2 uppercase tracking-widest text-sm"
+                  >
+                    {loading ? (
+                      <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                    ) : "Submit Payment"}
+                  </button>
+                </form>
+              </div>
+            ) : (
+              <form onSubmit={handleBuy} className="space-y-6">
+                {error && <div className="bg-[#fff1f2] border border-[#fecdd3] text-[#be123c] px-4 py-3 rounded-2xl text-sm font-semibold flex items-center gap-2 animate-shake">
+                  <span className="text-lg">⚠️</span>
+                  {error}
+                </div>}
+
+                <div>
+                  <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 pl-2 flex justify-between">
+                    <span>{isKan ? "ಖರೀದಿಸಲು ಪ್ರಮಾಣ (ಕೆಜಿ)" : "Quantity to Buy (kg)"} *</span>
+                    <span className="text-emerald-500">Max {listing.quantity_remaining_kg} kg</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number" step="1" min="1" max={listing.quantity_remaining_kg}
+                      value={quantityKg}
+                      onChange={e => setQuantityKg(e.target.value)}
+                      placeholder={`Max ${listing.quantity_remaining_kg} kg`}
+                      className="input-premium pl-4 pr-12 text-xl font-bold text-gray-900 h-14"
+                      disabled={loading}
+                      autoFocus
+                    />
+                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">KG</span>
+                  </div>
+                </div>
+
+                {!isNaN(totalAmount) && totalAmount > 0 && (
+                  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100/50 rounded-2xl p-5 flex items-center justify-between shadow-inner animate-fadeIn">
+                    <span className="text-emerald-700 font-bold text-sm uppercase tracking-widest">{isKan ? "ಒಟ್ಟು ಮೊತ್ತ" : "Total Amount"}</span>
+                    <div className="text-right">
+                      <span className="font-black text-emerald-600 text-3xl block tracking-tight">₹{totalAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+                      <span className="text-[10px] text-emerald-500/80 uppercase font-bold tracking-tighter italic block mt-1">+ taxes & platform fees</span>
+                    </div>
+                  </div>
                 )}
-              </button>
-            </div>
 
-            <div className="text-center">
-              <p className="text-[10px] text-gray-400 uppercase tracking-widest font-medium">Secured by Razorpay • Escrow Enabled</p>
-            </div>
+                <div className="flex gap-3 pt-4">
+                  {!loading && (
+                    <button type="button" onClick={onClose} className="flex-1 py-4 border-2 border-gray-100 text-gray-500 font-bold rounded-2xl hover:bg-gray-50 hover:text-gray-900 transition-all uppercase tracking-widest text-sm">
+                      {t("cancel")}
+                    </button>
+                  )}
+                  <button type="submit" disabled={loading} className="flex-1 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 disabled:opacity-80 text-white font-black rounded-2xl transition-all shadow-[0_8px_25px_rgba(16,185,129,0.3)] hover:shadow-[0_12px_30px_rgba(16,185,129,0.4)] flex flex-col items-center justify-center uppercase tracking-widest text-sm hover:-translate-y-0.5 active:scale-95 pulse-ring">
+                    {loading ? (
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <span className="text-xs">{step}</span>
+                      </div>
+                    ) : (
+                      <span>{isKan ? "ಪಾವತಿಸಿ" : "PAY NOW"}</span>
+                    )}
+                  </button>
+                </div>
 
-            {/* DEV ONLY: Force Paid button */}
-            <div className="border-t border-dashed border-red-200 pt-4 mt-2">
-              <p className="text-[10px] text-red-400 uppercase tracking-widest font-semibold mb-2 text-center">⚠ Dev Only</p>
-              <button
-                type="button"
-                onClick={handleForcePaid}
-                disabled={forcePaidLoading || loading}
-                className="w-full py-2.5 border-2 border-red-400 text-red-600 text-xs font-extrabold rounded-xl hover:bg-red-50 transition-all uppercase tracking-widest disabled:opacity-50"
-              >
-                {forcePaidLoading ? "Processing..." : "⚡ Force Paid"}
-              </button>
-            </div>
-          </form>
-        )}
+                <div className="text-center pt-2">
+                  <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Secured by Razorpay • Escrow Enabled</p>
+                </div>
+
+                {/* DEV ONLY: Force Paid button */}
+                <div className="border-t border-dashed border-gray-200 pt-6 mt-4 opacity-50 hover:opacity-100 transition-opacity">
+                  <p className="text-[10px] text-gray-400 uppercase tracking-widest font-black mb-3 text-center">Developer Menu</p>
+                  <button
+                    type="button"
+                    onClick={handleForcePaid}
+                    disabled={forcePaidLoading || loading}
+                    className="w-full py-3 border border-red-200 bg-red-50 text-red-600 text-xs font-black rounded-xl hover:bg-red-100 transition-all uppercase tracking-widest disabled:opacity-50"
+                  >
+                    {forcePaidLoading ? "Processing..." : "⚡ Force Paid"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
