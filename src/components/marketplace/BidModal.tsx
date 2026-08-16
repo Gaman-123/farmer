@@ -39,7 +39,6 @@ export default function BidModal({ listing, onClose }: BidModalProps) {
     setLoading(true);
     setError("");
 
-    // Fetch strictly replacing Server Action to match the API route
     try {
       const resp = await fetch("/api/bids", {
         method: "POST",
@@ -73,99 +72,157 @@ export default function BidModal({ listing, onClose }: BidModalProps) {
     : null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
-        {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-6">
-          <div className="flex items-center justify-between mb-2">
+    <div 
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 animate-fadeIn"
+      style={{
+        background: "rgba(15, 23, 42, 0.4)",
+        backdropFilter: "blur(12px) saturate(150%)",
+        WebkitBackdropFilter: "blur(12px) saturate(150%)",
+      }}
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden animate-slideUp transform transition-all relative border border-white/50"
+        onClick={e => e.stopPropagation()}
+        style={{
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255,255,255,0.1) inset"
+        }}
+      >
+        {/* Header Background */}
+        <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 -z-10">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
+          <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
+        </div>
+
+        {/* Header Content */}
+        <div className="pt-6 px-8 pb-6 text-white relative">
+          <div className="flex items-start justify-between mb-2">
             <div>
-              <h2 className="text-xl font-bold">{t("bid_title")}</h2>
-              <p className="text-emerald-100 font-medium">{isKan ? listing.commodity_name_kn : listing.commodity_name}</p>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/20 rounded-lg backdrop-blur-md border border-white/20 mb-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulseGlow"></span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-50">Market Price: ₹{listing.minimum_price_per_kg}</span>
+              </div>
+              <h2 className="text-2xl font-black tracking-tight font-['Outfit']">
+                {t("bid_title")}
+              </h2>
+              <p className="text-emerald-100 font-medium text-sm mt-0.5 opacity-90">
+                {isKan ? listing.commodity_name_kn : listing.commodity_name}
+              </p>
             </div>
-            <button onClick={onClose} className="p-2 rounded-full hover:bg-white/20 transition-colors text-xl font-bold">✕</button>
-          </div>
-          <div className="mt-4 flex gap-3">
-            <div className="bg-white/20 rounded-xl px-3 py-2 text-sm flex-1">
-              <p className="text-emerald-100 text-xs">{isKan ? "ಬೆಲೆ" : "Listed at"}</p>
-              <p className="font-bold text-lg">₹{Number(listing.minimum_price_per_kg).toFixed(1)}/kg</p>
-            </div>
-            <div className="bg-white/20 rounded-xl px-3 py-2 text-sm flex-1">
-              <p className="text-emerald-100 text-xs">{isKan ? "ಲಭ್ಯ" : "Available"}</p>
-              <p className="font-bold text-lg">{Number(listing.quantity_remaining_kg).toLocaleString()} kg</p>
-            </div>
-            <div className="bg-white/20 rounded-xl px-3 py-2 text-sm flex-1">
-              <p className="text-emerald-100 text-xs">{isKan ? "ಶ್ರೇಣಿ" : "Grade"}</p>
-              <p className="font-bold text-lg">{listing.grade}</p>
-            </div>
+            <button 
+              onClick={onClose} 
+              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all backdrop-blur-md"
+            >
+              <span className="text-sm font-bold opacity-80 hover:opacity-100">✕</span>
+            </button>
           </div>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5 bg-gray-50">
-          {error && <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 text-sm font-medium">{error}</div>}
-          {success && <div className="bg-emerald-50 border-l-4 border-emerald-500 text-emerald-800 px-4 py-3 text-sm font-bold">
-            {isKan ? "ಡೇಟಾಬೇಸಿಗೆ ಬಿಡ್ ಯಶಸ್ವಿಯಾಗಿ ಸಲ್ಲಿಸಲಾಗಿದೆ." : "Bid successfully committed to system."}
-          </div>}
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t("bid_offer_price")} *</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-lg">₹</span>
-              <input
-                type="number"
-                step="0.5"
-                min="0.1"
-                value={offerPrice}
-                onChange={e => setOfferPrice(e.target.value)}
-                className="w-full border border-gray-200 rounded-xl pl-8 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-gray-800 font-bold text-lg bg-gray-50 focus:bg-white transition-colors"
-                disabled={loading || success}
-              />
+        {/* Content Body */}
+        <div className="bg-white rounded-t-3xl -mt-6 p-8 relative shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+          {success ? (
+            <div className="py-12 flex flex-col items-center justify-center text-center animate-scaleIn">
+              <div className="w-20 h-20 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center text-3xl mb-4 shadow-inner">
+                ✓
+              </div>
+              <h3 className="text-2xl font-black text-gray-900 mb-2 font-['Outfit']">Bid Placed!</h3>
+              <p className="text-gray-500 text-sm">
+                {isKan ? "ರೈತರಿಗೆ ನಿಮ್ಮ ಬಿಡ್ ಬಗ್ಗೆ ತಿಳಿಸಲಾಗಿದೆ." : "The farmer has been notified of your offer."}
+              </p>
             </div>
-          </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="bg-[#fff1f2] border border-[#fecdd3] text-[#be123c] px-4 py-3 rounded-2xl text-sm font-semibold flex items-center gap-2 animate-shake">
+                  <span className="text-lg">⚠️</span>
+                  {error}
+                </div>
+              )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t("bid_quantity")} (optional)</label>
-            <input
-              type="number"
-              step="1"
-              min="1"
-              max={listing.quantity_remaining_kg}
-              value={quantityKg}
-              onChange={e => setQuantityKg(e.target.value)}
-              placeholder={`Max ${listing.quantity_remaining_kg} kg`}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-gray-800"
-              disabled={loading || success}
-            />
-          </div>
+              {/* Offer Price */}
+              <div>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 pl-2">
+                  {t("bid_offer_price")} *
+                </label>
+                <div className="relative">
+                  <span className="absolute left-5 top-1/2 -translate-y-1/2 text-emerald-600 font-black text-lg">₹</span>
+                  <input
+                    type="number" step="0.5" min="0.1"
+                    value={offerPrice}
+                    onChange={e => setOfferPrice(e.target.value)}
+                    className="input-premium pl-10 text-xl font-bold text-gray-900 h-14"
+                    disabled={loading}
+                    autoFocus
+                  />
+                </div>
+              </div>
 
-          {totalValue && (
-            <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex items-center justify-between shadow-inner">
-              <span className="text-emerald-800 font-medium">{isKan ? "ಅಂದಾಜು ಬೆಲೆ" : "Estimated total"}</span>
-              <span className="font-extrabold text-emerald-700 text-xl">{totalValue}</span>
-            </div>
+              {/* Quantity */}
+              <div>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 pl-2 flex justify-between">
+                  <span>{t("bid_quantity")} (optional)</span>
+                  <span className="text-emerald-500">Max {listing.quantity_remaining_kg} kg</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="number" step="1" min="1" max={listing.quantity_remaining_kg}
+                    value={quantityKg}
+                    onChange={e => setQuantityKg(e.target.value)}
+                    placeholder={`e.g. 50`}
+                    className="input-premium pr-12 text-lg font-bold text-gray-900 h-14"
+                    disabled={loading}
+                  />
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">KG</span>
+                </div>
+              </div>
+
+              {/* Estimate Pill */}
+              {totalValue && (
+                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-100/50 rounded-2xl p-4 flex items-center justify-between shadow-inner animate-fadeIn">
+                  <span className="text-emerald-700 font-bold text-xs uppercase tracking-widest">
+                    {isKan ? "ಅಂದಾಜು ಬೆಲೆ" : "Est. Value"}
+                  </span>
+                  <span className="font-black text-emerald-600 text-xl tracking-tight">{totalValue}</span>
+                </div>
+              )}
+
+              {/* Note */}
+              <div>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 pl-2">
+                  {t("bid_note")}
+                </label>
+                <textarea
+                  value={note}
+                  onChange={e => setNote(e.target.value)}
+                  rows={2}
+                  placeholder={isKan ? "ಸಂದೇಶ ಬರೆಯಿರಿ (ಐಚ್ಛಿಕ)…" : "Add a note for the farmer (optional)…"}
+                  className="input-premium py-4 text-sm resize-none"
+                  disabled={loading}
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4">
+                <button 
+                  type="button" onClick={onClose} 
+                  className="flex-1 py-4 border-2 border-gray-100 text-gray-500 font-bold rounded-2xl hover:bg-gray-50 hover:text-gray-900 transition-all text-sm uppercase tracking-widest"
+                >
+                  {t("cancel")}
+                </button>
+                <button 
+                  type="submit" disabled={loading} 
+                  className="flex-1 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 disabled:opacity-50 text-white font-black rounded-2xl transition-all shadow-[0_8px_25px_rgba(16,185,129,0.3)] hover:shadow-[0_12px_30px_rgba(16,185,129,0.4)] text-sm uppercase tracking-widest hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2 pulse-ring"
+                >
+                  {loading ? (
+                    <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                  ) : (
+                    <span>{t("bid_submit")}</span>
+                  )}
+                </button>
+              </div>
+            </form>
           )}
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t("bid_note")}</label>
-            <textarea
-              value={note}
-              onChange={e => setNote(e.target.value)}
-              rows={2}
-              placeholder={isKan ? "ಸಂದೇಶ ಬರೆಯಿರಿ…" : "Optional message…"}
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-400 text-gray-800 text-sm resize-none"
-              disabled={loading || success}
-            />
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-3.5 border-2 border-gray-200 text-gray-600 font-bold rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all">
-              {t("cancel")}
-            </button>
-            <button type="submit" disabled={loading || success} className="flex-1 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 disabled:opacity-50 text-white font-extrabold rounded-xl transition-all shadow-md hover:shadow-lg">
-              {loading ? t("bid_submitting") : t("bid_submit")}
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
   );
