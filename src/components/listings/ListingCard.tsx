@@ -4,7 +4,6 @@ import { formatDistanceToNow } from "date-fns";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { PRODUCT_DEFAULTS } from "@/lib/productDefaults";
 
-
 export interface Listing {
   listing_id: string;
   commodity_name: string;
@@ -24,16 +23,10 @@ export interface Listing {
 }
 
 const GRADE_COLORS: Record<string, string> = {
-  A: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  B: "bg-blue-100 text-blue-700 border-blue-200",
-  C: "bg-amber-100 text-amber-700 border-amber-200",
+  A: "bg-emerald-100 text-emerald-700 border-emerald-200 shadow-[0_0_10px_rgba(16,185,129,0.2)]",
+  B: "bg-blue-100 text-blue-700 border-blue-200 shadow-[0_0_10px_rgba(59,130,246,0.2)]",
+  C: "bg-amber-100 text-amber-700 border-amber-200 shadow-[0_0_10px_rgba(245,158,11,0.2)]",
   ungraded: "bg-gray-100 text-gray-600 border-gray-200",
-};
-
-const DELIVERY_LABELS: Record<string, string> = {
-  farm_pickup: "Farm Pickup",
-  nearest_mandi: "Nearest Mandi",
-  buyer_logistics: "Buyer Logistics",
 };
 
 interface ListingCardProps {
@@ -58,9 +51,10 @@ export default function ListingCard({ listing, language, onBid, onBuy }: Listing
     : false;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden group flex flex-col h-full">
+    <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_30px_rgb(5,150,105,0.1)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden group flex flex-col h-full animate-fadeUp">
+      
       {/* Image Block */}
-      <div className="relative w-full h-40 bg-gray-100 overflow-hidden">
+      <div className="relative w-full h-52 bg-gray-50 overflow-hidden">
         {(() => {
           const nameLower = name.toLowerCase();
           const commLower = listing.commodity_name.toLowerCase();
@@ -68,7 +62,6 @@ export default function ListingCard({ listing, language, onBid, onBuy }: Listing
           let imgSrc = hasImage ? listing.listing_images![0] : null;
 
           if (!imgSrc || imgSrc === "" || imgSrc === "null" || imgSrc === "undefined") {
-            // Check both standard and translated names
             if (commLower.includes("banana") || nameLower.includes("banana")) imgSrc = PRODUCT_DEFAULTS.banana;
             else if (commLower.includes("mango") || nameLower.includes("mango")) imgSrc = PRODUCT_DEFAULTS.mango;
             else if (commLower.includes("carrot") || nameLower.includes("carrot")) imgSrc = PRODUCT_DEFAULTS.carrot;
@@ -77,90 +70,100 @@ export default function ListingCard({ listing, language, onBid, onBuy }: Listing
             else if (commLower.includes("orange") || nameLower.includes("orange")) imgSrc = "https://images.unsplash.com/photo-1547514701-42782101795e?q=80&w=1000&auto=format&fit=crop";
           }
 
-
-
           return imgSrc ? (
             <img 
               src={imgSrc} 
               alt={name}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
               onError={(e) => {
-                // If it fails to load (404), hide it so we show "NO IMAGE"
                 (e.target as any).style.display = 'none';
-                (e.target as any).parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400 font-bold text-[10px] tracking-widest uppercase shadow-inner">NO IMAGE AVAILABLE</div>';
+                (e.target as any).parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-bold text-[10px] tracking-widest uppercase skeleton">NO IMAGE</div>';
               }}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400 font-bold text-[10px] tracking-widest uppercase shadow-inner">
-              NO IMAGE AVAILABLE
+            <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-bold text-[10px] tracking-widest uppercase skeleton">
+              NO IMAGE
             </div>
           );
         })()}
-        {/* Strip based on grade */}
-        <div className={`absolute bottom-0 left-0 h-1.5 w-full ${listing.grade === "A" ? "bg-emerald-400" : listing.grade === "B" ? "bg-blue-400" : listing.grade === "C" ? "bg-amber-400" : "bg-gray-300"}`} />
-      </div>
 
-      <div className="p-4 flex flex-col flex-1 space-y-3">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <h3 className="font-bold text-gray-800 text-base leading-tight">{name}</h3>
-            <p className="text-xs text-gray-400 mt-0.5">
-              {[listing.farmer_village, listing.farmer_district].filter(Boolean).join(", ") || "Karnataka"}
-            </p>
-          </div>
-          <div className="flex flex-col items-end gap-1 shrink-0">
-            <span className={`text-xs font-medium px-2.5 py-1 rounded-full border ${GRADE_COLORS[listing.grade]}`}>
-              Grade {listing.grade === "ungraded" ? "—" : listing.grade}
-            </span>
-          </div>
+        {/* Floating Grade Badge */}
+        <div className="absolute top-3 right-3 z-10">
+          <span className={`text-[10px] font-black px-3 py-1 rounded-full border backdrop-blur-md uppercase tracking-wider ${GRADE_COLORS[listing.grade]}`}>
+            Grade {listing.grade === "ungraded" ? "—" : listing.grade}
+          </span>
         </div>
 
-        {/* Metrics grid */}
-        <div className="grid grid-cols-2 gap-2">
-          <div className="bg-gray-50 rounded-xl p-2.5">
-            <p className="text-xs text-gray-400">{t("market_qty")}</p>
-            <p className="font-bold text-gray-800">{Number(listing.quantity_remaining_kg).toLocaleString()} <span className="font-normal text-gray-500 text-xs">{t("kg")}</span></p>
-          </div>
-          <div className="bg-emerald-50 rounded-xl p-2.5">
-            <p className="text-xs text-gray-400">{t("market_price_kg")}</p>
-            <p className="font-bold text-emerald-700 text-lg">₹{Number(listing.minimum_price_per_kg).toFixed(2)}</p>
-          </div>
+        {/* Gradient overlay to make text pop if we add any */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      </div>
+
+      {/* Content Block */}
+      <div className="p-5 flex flex-col flex-1 space-y-4">
+        
+        {/* Header */}
+        <div>
+          <h3 className="font-bold text-gray-900 text-lg leading-tight mb-1 font-['Outfit']">{name}</h3>
+          <p className="text-xs font-medium text-gray-400 flex items-center gap-1">
+            <span className="text-emerald-500">📍</span> 
+            {[listing.farmer_village, listing.farmer_district].filter(Boolean).join(", ") || "Karnataka"}
+          </p>
         </div>
 
         {/* Badges */}
-        <div className="flex flex-wrap gap-1.5 pt-1">
-          <span className="text-xs font-semibold px-2 py-1 rounded bg-gray-100 text-gray-600 uppercase tracking-wide">
+        <div className="flex flex-wrap gap-2">
+          <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-gray-100 text-gray-600 uppercase tracking-widest">
             {t(`listing_${listing.delivery_terms}` as any)}
           </span>
           {isFairPrice && (
-            <span className="text-xs font-semibold px-2 py-1 rounded bg-teal-50 text-teal-700 uppercase tracking-wide">{t("listing_fair_price")}</span>
+            <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-teal-50 border border-teal-100 text-teal-700 uppercase tracking-widest shadow-sm">
+              ✨ {t("listing_fair_price")}
+            </span>
           )}
           {aboveMsp && (
-            <span className="text-xs font-semibold px-2 py-1 rounded bg-emerald-50 text-emerald-700 uppercase tracking-wide">{t("listing_msp_badge")}</span>
+            <span className="text-[10px] font-bold px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-100 text-emerald-700 uppercase tracking-widest shadow-sm">
+              🛡️ {t("listing_msp_badge")}
+            </span>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="mt-auto pt-3 flex items-center justify-between border-t border-gray-100 gap-2">
-          <p className="text-xs font-medium text-gray-400 uppercase shrink-0">{expiresIn}</p>
-          <div className="flex gap-2 w-full justify-end">
-            <button
-              id={`bid-btn-${listing.listing_id}`}
-              onClick={() => onBid(listing)}
-              className="px-3 py-2 border border-emerald-500 text-emerald-600 text-xs font-bold rounded-xl hover:bg-emerald-50 transition-all shrink-0"
-            >
-              {t("market_place_bid")}
-            </button>
-            <button
-              id={`buy-btn-${listing.listing_id}`}
-              onClick={() => onBuy(listing)}
-              className="flex-1 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs font-extrabold rounded-xl transition-all shadow-sm shadow-emerald-200 hover:scale-[1.02] active:scale-95"
-            >
-              {language === 'en' ? 'BUY NOW' : 'ಈಗಲೇ ಖರೀದಿಸಿ'}
-            </button>
+        {/* Metrics Box */}
+        <div className="grid grid-cols-2 gap-3 bg-gray-50 rounded-2xl p-3 border border-gray-100/50 mt-auto">
+          <div>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{t("market_qty")}</p>
+            <p className="font-black text-gray-800 text-lg leading-none">
+              {Number(listing.quantity_remaining_kg).toLocaleString()} <span className="font-semibold text-gray-400 text-xs tracking-normal">{t("kg")}</span>
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1">{t("market_price_kg")}</p>
+            <p className="font-black text-emerald-600 text-xl leading-none">
+              <span className="text-sm">₹</span>{Number(listing.minimum_price_per_kg).toFixed(2)}
+            </p>
           </div>
         </div>
+
+        {/* Actions */}
+        <div className="pt-2 flex items-center gap-3">
+          <button
+            onClick={() => onBid(listing)}
+            className="flex-1 py-3 bg-white border-2 border-emerald-100 text-emerald-600 hover:border-emerald-500 hover:bg-emerald-50 text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-sm"
+          >
+            {t("market_place_bid")}
+          </button>
+          <button
+            onClick={() => onBuy(listing)}
+            className="flex-1 py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-[0_4px_15px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)] hover:-translate-y-0.5 active:scale-95 pulse-ring"
+          >
+            {language === 'en' ? 'Buy Now' : 'ಖರೀದಿಸಿ'}
+          </button>
+        </div>
+        
+        {/* Expiry */}
+        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center mt-1">
+          ⏳ Expires {expiresIn}
+        </p>
+
       </div>
     </div>
   );

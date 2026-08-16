@@ -247,10 +247,10 @@ export default function MarketplaceGrid() {
 
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <div className="h-48 bg-gray-200/50 animate-pulse rounded-2xl border border-gray-100" />
-            <div className="h-48 bg-gray-200/50 animate-pulse rounded-2xl border border-gray-100" />
-            <div className="h-48 bg-gray-200/50 animate-pulse rounded-2xl border border-gray-100" />
-            <div className="h-48 bg-gray-200/50 animate-pulse rounded-2xl border border-gray-100" />
+            <div className="h-96 skeleton rounded-3xl border border-gray-100" />
+            <div className="h-96 skeleton rounded-3xl border border-gray-100" />
+            <div className="h-96 skeleton rounded-3xl border border-gray-100" />
+            <div className="h-96 skeleton rounded-3xl border border-gray-100" />
           </div>
         ) : filteredListings.length === 0 ? (
           <div className="text-center py-20 bg-white rounded flex flex-col items-center justify-center border border-gray-200 mt-8">
