@@ -122,17 +122,16 @@ export async function POST(req: NextRequest) {
       await client.query(`UPDATE buyers SET total_transactions = total_transactions + 1 WHERE buyer_id = $1`, [buyer_id]);
     }
 
-    // Notifications
-    // Get farmer phone for notification
+    // Notifications - wrapped in catch so a notif failure never kills the transaction
     const farmerRow = await client.query(`SELECT phone_number FROM farmers WHERE farmer_id = $1`, [farmer_id]);
     const farmerPhone = farmerRow.rows[0]?.phone_number || '';
     await client.query(
       `INSERT INTO notifications (farmer_id, recipient_phone, notif_type, listing_id, message_en, message_kn, channel)
        VALUES ($1,$2,'payment_escrowed',$3,$4,$5,'sms')`,
       [farmer_id, farmerPhone, listing_id || null,
-       `Payment of ₹${total_amount.toFixed(2)} in escrow for ${commodity_name}`,
-       `₹${total_amount.toFixed(2)} ಎಸ್ಕ್ರೋದಲ್ಲಿ ಸ್ವೀಕರಿಸಲಾಗಿದೆ`]
-    );
+       `Payment of \u20b9${total_amount.toFixed(2)} in escrow for ${commodity_name}`,
+       `\u20b9${total_amount.toFixed(2)} \u0c8e\u0cb8\u0ccd\u0c95\u0ccd\u0cb0\u0ccb\u0ca6\u0cb2\u0ccd\u0cb2\u0cbf \u0cb8\u0ccd\u0cb5\u0cc0\u0c95\u0cb0\u0cbf\u0cb8\u0cb2\u0cbe\u0c97\u0cbf\u0ca6\u0cc6`]
+    ).catch(() => null);
 
     return NextResponse.json({
       transaction_id, invoice_number, total_amount,

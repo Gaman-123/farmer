@@ -61,18 +61,18 @@ export async function POST(req: NextRequest) {
       [listing_id, buyer_id, offered_price_per_kg, quantity_kg, pickup_date, delivery_terms, note, fair_price_at_bid]
     );
 
-    // Insert notification for farmer
+    // Insert notification for farmer (use correct column names from notifications table)
     const farmerRes = await client.query(`SELECT farmer_id FROM marketplace_listings WHERE listing_id = $1`, [listing_id]);
     if (farmerRes.rows[0]) {
       await client.query(
-        `INSERT INTO notifications (recipient_farmer_id, notif_type, listing_id, bid_id, message_en, message_kn, channel)
+        `INSERT INTO notifications (farmer_id, notif_type, listing_id, bid_id, message_en, message_kn, channel)
          VALUES ($1, 'bid_received', $2, $3, $4, $5, 'sms')`,
         [
           farmerRes.rows[0].farmer_id, listing_id, bidRes.rows[0].bid_id,
-          `New bid: ₹${offered_price_per_kg}/kg`,
-          `ಹೊಸ ಬಿಡ್: ₹${offered_price_per_kg}/ಕೆಜಿ`
+          `New bid: \u20b9${offered_price_per_kg}/kg`,
+          `\u0cb9\u0cca\u0cb8 \u0cac\u0cbf\u0ca1\u0ccd: \u20b9${offered_price_per_kg}/\u0c95\u0cc6\u0c9c\u0cbf`
         ]
-      );
+      ).catch(() => null); // Don't fail the bid if notification fails
     }
 
     const row = bidRes.rows[0];

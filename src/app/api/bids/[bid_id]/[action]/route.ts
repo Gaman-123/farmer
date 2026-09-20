@@ -84,16 +84,16 @@ export async function PATCH(
       // Create transaction
       const txn = await createTransaction(client, bid, bid);
 
-      // Notify buyer
+      // Notify buyer (use correct column names)
       await client.query(
-        `INSERT INTO notifications (recipient_buyer_id, notif_type, listing_id, bid_id, message_en, message_kn, channel)
+        `INSERT INTO notifications (buyer_id, notif_type, listing_id, bid_id, message_en, message_kn, channel)
          VALUES ($1,'bid_accepted',$2,$3,$4,$5,'sms')`,
         [
           bid.buyer_id, bid.listing_id, bid_id,
           `Your bid accepted! Transaction ID: ${txn.transaction_id}`,
-          `ನಿಮ್ಮ ಬಿಡ್ ಸ್ವೀಕರಿಸಲಾಗಿದೆ! ವ್ಯವಹಾರ ID: ${txn.transaction_id}`
+          `\u0ca8\u0cbf\u0cae\u0ccd\u0cae \u0cac\u0cbf\u0ca1\u0ccd \u0cb8\u0ccd\u0cb5\u0cc0\u0c95\u0cb0\u0cbf\u0cb8\u0cb2\u0cbe\u0c97\u0cbf\u0ca6\u0cc6! \u0cb5\u0ccd\u0caf\u0cb5\u0cb9\u0cbe\u0cb0 ID: ${txn.transaction_id}`
         ]
-      );
+      ).catch(() => null);
 
       return NextResponse.json({ bid_id, transaction_id: txn.transaction_id });
 
@@ -110,16 +110,16 @@ export async function PATCH(
         );
       }
 
-      // Notify buyer
+      // Notify buyer (use correct column names)
       await client.query(
-        `INSERT INTO notifications (recipient_buyer_id, notif_type, listing_id, bid_id, message_en, message_kn, channel)
+        `INSERT INTO notifications (buyer_id, notif_type, listing_id, bid_id, message_en, message_kn, channel)
          VALUES ($1,'bid_rejected',$2,$3,$4,$5,'sms')`,
         [
           bid.buyer_id, bid.listing_id, bid_id,
-          counter_price_per_kg ? `Counter offer: ₹${counter_price_per_kg}/kg` : "Your bid was rejected",
-          counter_price_per_kg ? `ಪ್ರತಿ ಬೆಲೆ: ₹${counter_price_per_kg}/ಕೆಜಿ` : "ನಿಮ್ಮ ಬಿಡ್ ತಿರಸ್ಕರಿಸಲಾಗಿದೆ"
+          counter_price_per_kg ? `Counter offer: \u20b9${counter_price_per_kg}/kg` : "Your bid was rejected",
+          counter_price_per_kg ? `\u0caa\u0ccd\u0cb0\u0ca4\u0cbf \u0cac\u0cc6\u0cb2\u0cc6: \u20b9${counter_price_per_kg}/\u0c95\u0cc6\u0c9c\u0cbf` : `\u0ca8\u0cbf\u0cae\u0ccd\u0cae \u0cac\u0cbf\u0ca1\u0ccd \u0ca4\u0cbf\u0cb0\u0cb8\u0ccd\u0c95\u0cb0\u0cbf\u0cb8\u0cb2\u0cbe\u0c97\u0cbf\u0ca6\u0cc6`
         ]
-      );
+      ).catch(() => null);
 
       return NextResponse.json({ ok: true, bid_id, status: counter_price_per_kg ? "countered" : "rejected" });
     }
