@@ -32,10 +32,46 @@ export async function POST(req: NextRequest) {
 
     if (profileRes.rows.length > 0) {
       const p = profileRes.rows[0];
-      finalRole = p.role;
       supabase_user_id = p.supabase_user_id;
-      linked_id = finalRole === "farmer" ? p.linked_farmer_id : p.linked_buyer_id;
-      name = p.name;
+      finalRole = role;
+
+      if (finalRole === "buyer") {
+        if (p.linked_buyer_id) {
+          linked_id = p.linked_buyer_id;
+          const bRow = await client.query(`SELECT business_name FROM buyers WHERE buyer_id = $1`, [linked_id]);
+          name = bRow.rows[0]?.business_name || p.name || `Buyer ${phone_number.slice(-4)}`;
+        } else {
+          const bRes = await client.query(
+            `INSERT INTO buyers (phone_number, business_name, buyer_type)
+             VALUES ($1, $2, 'retailer') RETURNING buyer_id, business_name`,
+            [phone_number, `Buyer ${phone_number.slice(-4)}`]
+          );
+          linked_id = bRes.rows[0].buyer_id;
+          name = bRes.rows[0].business_name;
+        }
+        await client.query(
+          `UPDATE user_profiles SET role = 'buyer', linked_buyer_id = $1 WHERE phone_number = $2`,
+          [linked_id, phone_number]
+        );
+      } else {
+        if (p.linked_farmer_id) {
+          linked_id = p.linked_farmer_id;
+          const fRow = await client.query(`SELECT full_name FROM farmers WHERE farmer_id = $1`, [linked_id]);
+          name = fRow.rows[0]?.full_name || p.name || `Farmer ${phone_number.slice(-4)}`;
+        } else {
+          const fRes = await client.query(
+            `INSERT INTO farmers (phone_number, full_name, district, preferred_language)
+             VALUES ($1, $2, 'Karnataka', 'kn') RETURNING farmer_id, full_name`,
+            [phone_number, `Farmer ${phone_number.slice(-4)}`]
+          );
+          linked_id = fRes.rows[0].farmer_id;
+          name = fRes.rows[0].full_name;
+        }
+        await client.query(
+          `UPDATE user_profiles SET role = 'farmer', linked_farmer_id = $1 WHERE phone_number = $2`,
+          [linked_id, phone_number]
+        );
+      }
     } else {
       // Auto-create
       supabase_user_id = (await client.query(`SELECT uuid_generate_v4() AS id`)).rows[0].id;

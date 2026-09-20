@@ -93,6 +93,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const listing_id = searchParams.get("listing_id");
   const buyer_id = searchParams.get("buyer_id");
+  const farmer_id = searchParams.get("farmer_id");
 
   const conditions: string[] = [];
   const params: any[] = [];
@@ -100,13 +101,17 @@ export async function GET(req: NextRequest) {
 
   if (listing_id) { conditions.push(`b.listing_id = $${pi++}`); params.push(listing_id); }
   if (buyer_id) { conditions.push(`b.buyer_id = $${pi++}`); params.push(buyer_id); }
+  if (farmer_id) { conditions.push(`ml.farmer_id = $${pi++}`); params.push(farmer_id); }
 
   const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
   try {
     const res = await pool.query(
-      `SELECT b.*, ml.commodity_name, ml.minimum_price_per_kg as listing_price
+      `SELECT b.*, ml.commodity_name, ml.minimum_price_per_kg as listing_price,
+              COALESCE(bu.business_name, bu.phone_number, 'Buyer') as buyer_name,
+              bu.phone_number as buyer_phone
        FROM bids b
        JOIN marketplace_listings ml ON b.listing_id = ml.listing_id
+       LEFT JOIN buyers bu ON b.buyer_id = bu.buyer_id
        ${where} ORDER BY b.created_at DESC`, params
     );
     return NextResponse.json({ data: res.rows, total: res.rows.length });
